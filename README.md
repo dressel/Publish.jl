@@ -1,0 +1,3 @@
+# Publish
+
+[![Build Status](https://travis-ci.org/dressel/Publish.jl.svg?branch=master)](https://travis-ci.org/dressel/Publish.jl)
