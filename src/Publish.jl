@@ -9,13 +9,25 @@ function publish_tex(filename::String)
 	println(tex, "\\usepackage{caption}")
 	#println(tex, "\\usepackage{tikz}")
 	#println(tex, td.pictures[1].preamble)
+
 	println(tex, "\\begin{document}")
-	println(tex, "Sample Document")
+
+	# Open the source file and print it out
+	source_file = open(filename, "r")
+	while (currentline = readline(source_file)) != ""
+		println(tex, currentline)
+	end
+	close(source_file)
+
 	println(tex, "\\end{document}")
 	close(tex)
 end
 
 function publish(filename::String)
+
+	# TODO: check that the file exists
+	# TODO: check that the file is of the correct type (.jl)
+
 
 	# Generate the .tex file and make pass along any possible errors
 	IX = rsearch(filename,'/')              # Find the last slash
