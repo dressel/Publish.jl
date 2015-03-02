@@ -17,10 +17,7 @@ function publish_tex(filename::String)
 	# Open the source file and print it out
 	source_file = open(filename, "r")
 	while (currentline = readline(source_file)) != ""
-		# Can't currently handle comments...
-		if !contains(currentline, "#")
-			println(tex, currentline)
-		end
+    print(tex, currentline)
 	end
 	close(source_file)
 
@@ -67,7 +64,7 @@ function publish(filename::String)
 		# This failing is NOT critical either, so just make it a warning
 		# Before, it checked for tikzDeleteIntermediate
 		#if tikzDeleteIntermediate()
-		rm("$(filename).tex")
+		#rm("$(filename).tex")
 		rm("$(filename).aux")
 		rm("$(filename).log")
 	catch
