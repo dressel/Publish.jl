@@ -1,0 +1,24 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% julia_listings.tex
+% Creates a listings definition for Julia
+% Should handle all the listings stuff
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{listings}
+\usepackage[usenames,dvipsnames]{xcolor}
+
+\lstdefinelanguage{Julia}
+{
+	morekeywords={
+		if, elseif, else, end
+	},
+	sensitive=true,      % case sensitive
+	morecomment=[l]{\#}, % comments
+	morestring=[b]"
+}
+
+\lstset{
+	language=Julia,
+	commentstyle=\color{ForestGreen},
+	stringstyle=\color{magenta},
+	showstringspaces=false % If true, underlines spaces in strings
+}

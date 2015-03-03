@@ -6,18 +6,19 @@ function publish_tex(filename::String)
 	#filename = f.filename
 	tex = open("$(filename).tex", "w")
 	println(tex, "\\documentclass{article}")
-	println(tex, "\\usepackage{listings}")
 	println(tex, "\\usepackage{caption}")
 	#println(tex, "\\usepackage{tikz}")
 	#println(tex, td.pictures[1].preamble)
 
+	lst = readall(joinpath(Pkg.dir("Publish"), "src", "julia_listings.tex"))
+	println(tex, lst)
 	println(tex, "\\begin{document}")
 	println(tex, "\\begin{lstlisting}[numbers=left]")
 
 	# Open the source file and print it out
 	source_file = open(filename, "r")
 	while (currentline = readline(source_file)) != ""
-    print(tex, currentline)
+		print(tex, currentline)
 	end
 	close(source_file)
 
