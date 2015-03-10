@@ -1,8 +1,12 @@
 module Publish
 
-export publish, publish_tex
+export publish, publish_tex, setup, showit
 
+
+# Creates the tex file
 function publish_tex(filename::String)
+	global _output_buffer = IOBuffer()
+
 	#filename = f.filename
 	tex = open("$(filename).tex", "w")
 	println(tex, "\\documentclass{article}")
@@ -21,17 +25,50 @@ function publish_tex(filename::String)
 		print(tex, currentline)
 	end
 	close(source_file)
-
 	println(tex, "\\end{lstlisting}")
+
+	# Run the test file
+	include(filename)
+
+	output_string = takebuf_string(_output_buffer)
+	if length(output_string) > 0
+		println(tex, "Console Output\n")
+		println(tex, output_string)
+	end
+
+	# End the document and close
 	println(tex, "\\end{document}")
 	close(tex)
 end
+
+_output_buffer = nothing
+
+
+# Does the same thing as normal println function, 
+#  but also prints to a buffer if it exists.
+function Base.println(xs...)
+	global _output_buffer
+	if _output_buffer != nothing
+		println(_output_buffer, xs...)
+	end
+	println(STDOUT, xs...)
+end
+
+# Does the same thing as normal print function, 
+#  but also prints to a buffer if it exists.
+function Base.print(xs...)
+	global _output_buffer
+	if _output_buffer != nothing
+		print(_output_buffer, xs...)
+	end
+	print(STDOUT, xs...)
+end
+
 
 function publish(filename::String)
 
 	# TODO: check that the file exists
 	# TODO: check that the file is of the correct type (.jl)
-
 
 	# Generate the .tex file and make pass along any possible errors
 	IX = rsearch(filename,'/')              # Find the last slash
@@ -39,7 +76,8 @@ function publish(filename::String)
 	foldername = (IX == 0 ? "." : foldername) # If there was no slash, folder is "."
 	#save(TEX(f.filename * ".tex"), tp)        # Save the tex file in the directory that was given
 	publish_tex(filename)
-                                            #   This will throw an error if the directory doesn't exist
+
+	# We should add more to file
 
 	# From the .tex file, generate a pdf within the specified folder
 	latexCommand = ``
