@@ -6,17 +6,32 @@ The idea behind this package is to make something that prints your code. I'm kin
 ```
 publish("juliacodetopublish.jl")
 ```
-Currently, this only outputs a sample pdf document. Note that you need latex installed on your machine.
+Currently, this will print the code, run it, print any output, and add any plots.
+Plots are currently handled by a wrapper of PGFPlots.
+The idea is to make plotting more like MATLAB.
 
-## Near Term TODO list
+## Required Tex Packages
+* `listings` to plot the code
+* `caption` forgot why need this
+* `standalone` for plots
+* `xcolor` for pgfplots, listings stuff
+* `pgfplots` for plotting
+* `babel` to rectify quotes
+
+## TODO list
 * Check that the file to publish actually exists
-* Actually copy the code into file
-* Actually run the julia program and publish it and get the output somehow
-* Allow for comments (just escape #?)
-* Remove excess spaces
+* Make quotes correct in the code listing (first quotes come out backwards)
+* Make some test julia files and stick them in the test folder
+* Give user option not to run code; just publish the code itself
+* Allow publishing of other languages (obviously, can't run that code)
+* Maybe not rely solely on LaTeX... do something like html?
+* improve listings language file (in julia_listings.tex)
+* delete tex files created by plotting
+* Maybe not even use separate tex files when plotting
+* add a lot more functionality to plotting
+* output should not be "test2.jl.pdf", just "test2.pdf"
+* Robust to not having things like pgfplots. Just don't plot in that case
+* Make the output look prettier (headers, footers, spacing)
 
-## Notes
-I recently added the listings package. You need to include have the listings package.
-I eliminate commments, because Tex doesn't like them. I think I just need to escape them.
 
 [![Build Status](https://travis-ci.org/dressel/Publish.jl.svg?branch=master)](https://travis-ci.org/dressel/Publish.jl)
