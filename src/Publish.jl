@@ -1,6 +1,15 @@
 module Publish
 
 export publish, publish_tex, setup, showit
+export plot
+
+import PGFPlots: Plots, Axis, save
+
+export Plots, save
+
+# 
+_output_buffer = nothing
+_num_plots = 0
 
 
 # Creates the tex file
@@ -11,9 +20,19 @@ function publish_tex(filename::String)
 	tex = open("$(filename).tex", "w")
 	println(tex, "\\documentclass{article}")
 	println(tex, "\\usepackage{caption}")
-	#println(tex, "\\usepackage{tikz}")
-	#println(tex, td.pictures[1].preamble)
 
+	# Quote stuff: Cool, doesn't work in the lstlisting stuff though :(
+	println(tex, "\\usepackage[english]{babel}")
+	println(tex, "\\usepackage[autostyle, english = american]{csquotes}")
+	println(tex, "\\MakeOuterQuote{\"}")
+
+	# standalone stuff
+	println(tex, "\\usepackage{standalone}")
+	println(tex, "\\usepackage[usenames,dvipsnames]{xcolor}")
+	println(tex, "\\usepackage{pgfplots}")
+	println(tex, "\\pgfplotsset{compat=newest}")
+
+	# listings stuff
 	lst = readall(joinpath(Pkg.dir("Publish"), "src", "julia_listings.tex"))
 	println(tex, lst)
 	println(tex, "\\begin{document}")
@@ -30,18 +49,27 @@ function publish_tex(filename::String)
 	# Run the test file
 	include(filename)
 
+	# We should now have a string of output
 	output_string = takebuf_string(_output_buffer)
 	if length(output_string) > 0
 		println(tex, "Console Output\n")
 		println(tex, output_string)
 	end
 
+	# We also have a bunch of tex plots
+	global _num_plots
+	for i = 1:_num_plots
+		println(tex, "\\begin{figure}[!ht]")
+		println(tex, "\\centering")
+		println(tex, "\\input{temp_publish_$i.tex}")
+		println(tex, "\\end{figure}")
+	end
+	_num_plots = 0
+
 	# End the document and close
 	println(tex, "\\end{document}")
 	close(tex)
 end
-
-_output_buffer = nothing
 
 
 # Does the same thing as normal println function, 
@@ -50,6 +78,7 @@ function Base.println(xs...)
 	global _output_buffer
 	if _output_buffer != nothing
 		println(_output_buffer, xs...)
+		println(_output_buffer, "")
 	end
 	println(STDOUT, xs...)
 end
@@ -75,7 +104,11 @@ function publish(filename::String)
 	foldername = filename[1:IX-1]           # Everything before that is the folder name
 	foldername = (IX == 0 ? "." : foldername) # If there was no slash, folder is "."
 	#save(TEX(f.filename * ".tex"), tp)        # Save the tex file in the directory that was given
+
+	# This also sets the global _output_buffer to a value (as in, not nothing)
+	# When it is done, set the global _output_buffer back to nothing
 	publish_tex(filename)
+	global _output_buffer = nothing
 
 	# We should add more to file
 
@@ -108,6 +141,22 @@ function publish(filename::String)
 		rm("$(filename).log")
 	catch
 		println("WARNING! Your intermediate files are not being deleted.")
+	end
+end
+
+function plot(x, y; ymode=nothing, xmode=nothing)
+	p = Plots.Linear(x,y)
+	a = Axis(p, ymode=ymode, xmode=xmode)
+
+	global _output_buffer
+	global _num_plots
+	if _output_buffer != nothing
+		# This is being run to publish the file
+		_num_plots += 1
+		save("temp_publish_$(_num_plots).tex", a)
+	else
+		# Just plot it for our sake
+		save("temp_publish_$(_num_plots).pdf", a)
 	end
 end
 
