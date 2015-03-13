@@ -32,6 +32,8 @@ The idea is to make plotting more like MATLAB.
 * output should not be "test2.jl.pdf", just "test2.pdf"
 * Robust to not having things like pgfplots. Just don't plot in that case
 * Make the output look prettier (headers, footers, spacing)
+* Handle lines of code that are too long
+* Maybe handle display? Display is nicer for things like Arrays
 
 
 [![Build Status](https://travis-ci.org/dressel/Publish.jl.svg?branch=master)](https://travis-ci.org/dressel/Publish.jl)
