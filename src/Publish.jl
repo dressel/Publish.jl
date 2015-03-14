@@ -16,8 +16,14 @@ _num_plots = 0
 function publish_tex(filename::String)
 	global _output_buffer = IOBuffer()
 
+	# TODO: Here I should check for larger names (test.rar.jl)
+	filename_arr = split(filename, ".")
+	if filename_arr[end] == "jl"
+		filename_short = filename_arr[1]
+	end
+
 	#filename = f.filename
-	tex = open("$(filename).tex", "w")
+	tex = open("$(filename_short).tex", "w")
 	println(tex, "\\documentclass{article}")
 	println(tex, "\\usepackage{caption}")
 
@@ -110,6 +116,12 @@ function publish(filename::String)
 	publish_tex(filename)
 	global _output_buffer = nothing
 
+	# TODO: Here I should check for larger names (test.rar.jl)
+	filename_arr = split(filename, ".")
+	if filename_arr[end] == "jl"
+		filename_short = filename_arr[1]
+	end
+
 	# We should add more to file
 
 	# From the .tex file, generate a pdf within the specified folder
@@ -121,7 +133,7 @@ function publish(filename::String)
 	#else
 	#	latexCommand = `lualatex --output-directory=$(foldername) $(f.filename)`
 	#end
-	latexCommand = `lualatex --output-directory=$(foldername) $(filename)`
+	latexCommand = `lualatex --output-directory=$(foldername) $(filename_short)`
 	isPdfThere = success(latexCommand)
 
 	if !isPdfThere
@@ -137,8 +149,8 @@ function publish(filename::String)
 		# Before, it checked for tikzDeleteIntermediate
 		#if tikzDeleteIntermediate()
 		#rm("$(filename).tex")
-		rm("$(filename).aux")
-		rm("$(filename).log")
+		rm("$(filename_short).aux")
+		rm("$(filename_short).log")
 	catch
 		println("WARNING! Your intermediate files are not being deleted.")
 	end
