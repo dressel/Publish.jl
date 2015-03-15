@@ -38,10 +38,14 @@ function publish_tex(filename::String)
 	println(tex, "\\usepackage{pgfplots}")
 	println(tex, "\\pgfplotsset{compat=newest}")
 
+	# Change the Margins
+	println(tex, "\\usepackage[margin=1.0in]{geometry}")
+
 	# listings stuff
 	lst = readall(joinpath(Pkg.dir("Publish"), "src", "julia_listings.tex"))
 	println(tex, lst)
 	println(tex, "\\begin{document}")
+	println(tex, "\\section{Code}")
 	println(tex, "\\begin{lstlisting}[numbers=left]")
 
 	# Open the source file and print it out
@@ -58,7 +62,8 @@ function publish_tex(filename::String)
 	# We should now have a string of output
 	output_string = takebuf_string(_output_buffer)
 	if length(output_string) > 0
-		println(tex, "Console Output\n")
+		#println(tex, "Console Output\n")
+		println(tex, "\\section{Output}")
 		println(tex, output_string)
 	end
 

@@ -17,23 +17,22 @@ The idea is to make plotting more like MATLAB.
 * `xcolor` for pgfplots, listings stuff
 * `pgfplots` for plotting
 * `babel` to rectify quotes
+* `geometry` to change margins
 
 ## TODO list
 * Check that the file to publish actually exists
-* Make quotes correct in the code listing (first quotes come out backwards)
 * Make some test julia files and stick them in the test folder
 * Give user option not to run code; just publish the code itself
 * Allow publishing of other languages (obviously, can't run that code)
-* Maybe not rely solely on LaTeX... do something like html?
+* Maybe not rely solely on LaTeX... do something like html or md?
 * improve listings language file (in julia_listings.tex)
 * delete tex files created by plotting
 * Maybe not even use separate tex files when plotting
 * add a lot more functionality to plotting
-* output should not be "test2.jl.pdf", just "test2.pdf"
+* Override save or Axis function in PGFPlots?
 * Robust to not having things like pgfplots. Just don't plot in that case
 * Make the output look prettier (headers, footers, spacing)
-* Handle lines of code that are too long
-* Maybe handle display? Display is nicer for things like Arrays
+* Maybe override display? Display is nicer for things like Arrays
 
 
 [![Build Status](https://travis-ci.org/dressel/Publish.jl.svg?branch=master)](https://travis-ci.org/dressel/Publish.jl)
