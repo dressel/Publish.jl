@@ -4,7 +4,6 @@
 % Should handle all the listings stuff
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \usepackage{listings}
-%\usepackage[usenames,dvipsnames]{xcolor}
 
 \lstdefinelanguage{Julia}
 {
@@ -16,7 +15,9 @@
 	morestring=[b]"
 }
 
-\lstset{
+
+\lstdefinestyle{JuliaStyle}
+{
 	language=Julia,
 	basicstyle=\ttfamily,
 	keywordstyle=\bfseries\color{blue},
@@ -24,5 +25,6 @@
 	stringstyle=\color{magenta},
 	tabsize=4,
 	breaklines=true,
+	xleftmargin=0.5in,
 	showstringspaces=false % If true, underlines spaces in strings
 }

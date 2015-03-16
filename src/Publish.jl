@@ -4,7 +4,6 @@ export publish, publish_tex, setup, showit
 export plot
 
 import PGFPlots: Plots, Axis, save
-
 export Plots, save
 
 # 
@@ -28,6 +27,7 @@ function publish_tex(filename::String)
 	println(tex, "\\usepackage{caption}")
 
 	# Quote stuff: Cool, doesn't work in the lstlisting stuff though :(
+	# TODO: is this even useful anymore?
 	println(tex, "\\usepackage[english]{babel}")
 	println(tex, "\\usepackage[autostyle, english = american]{csquotes}")
 	println(tex, "\\MakeOuterQuote{\"}")
@@ -41,14 +41,24 @@ function publish_tex(filename::String)
 	# Change the Margins
 	println(tex, "\\usepackage[margin=1.0in]{geometry}")
 
+	# Headers, footers
+	println(tex, "\\usepackage{fancyhdr}")
+	println(tex, "\\pagestyle{fancy}")
+	println(tex, "\\lhead{$filename}")
+	println(tex, "\\rhead{}")
+	println(tex, "\\renewcommand{\\headrulewidth}{0.4pt}")
+	println(tex, "\\renewcommand{\\footrulewidth}{0.4pt}")
+
 	# listings stuff
 	lst = readall(joinpath(Pkg.dir("Publish"), "src", "julia_listings.tex"))
 	println(tex, lst)
-	println(tex, "\\begin{document}")
-	println(tex, "\\section{Code}")
-	println(tex, "\\begin{lstlisting}[numbers=left]")
 
-	# Open the source file and print it out
+	println(tex, "\\begin{document}")
+
+	# Begin the code section
+	println(tex, "\\section{Code}")
+	#println(tex, "\\begin{lstlisting}[numbers=left]")
+	println(tex, "\\begin{lstlisting}[style=JuliaStyle,numbers=left]")
 	source_file = open(filename, "r")
 	while (currentline = readline(source_file)) != ""
 		print(tex, currentline)
@@ -56,13 +66,10 @@ function publish_tex(filename::String)
 	close(source_file)
 	println(tex, "\\end{lstlisting}")
 
-	# Run the test file
+	# Run the test file and print the output
 	include(filename)
-
-	# We should now have a string of output
 	output_string = takebuf_string(_output_buffer)
 	if length(output_string) > 0
-		#println(tex, "Console Output\n")
 		println(tex, "\\section{Output}")
 		println(tex, output_string)
 	end
