@@ -33,6 +33,7 @@ The idea is to make plotting more like MATLAB.
 * Robust to not having things like pgfplots. Just don't plot in that case
 * Make the output look prettier (headers, footers, spacing)
 * Maybe override display? Display is nicer for things like Arrays
+* Make the Plain style ready (maybe call it output?)
 
 
 [![Build Status](https://travis-ci.org/dressel/Publish.jl.svg?branch=master)](https://travis-ci.org/dressel/Publish.jl)

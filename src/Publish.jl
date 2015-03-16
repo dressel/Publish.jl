@@ -57,7 +57,6 @@ function publish_tex(filename::String)
 
 	# Begin the code section
 	println(tex, "\\section{Code}")
-	#println(tex, "\\begin{lstlisting}[numbers=left]")
 	println(tex, "\\begin{lstlisting}[style=JuliaStyle,numbers=left]")
 	source_file = open(filename, "r")
 	while (currentline = readline(source_file)) != ""
@@ -71,7 +70,9 @@ function publish_tex(filename::String)
 	output_string = takebuf_string(_output_buffer)
 	if length(output_string) > 0
 		println(tex, "\\section{Output}")
+		println(tex, "\\begin{lstlisting}[style=Plain]")
 		println(tex, output_string)
+		println(tex, "\\end{lstlisting}")
 	end
 
 	# We also have a bunch of tex plots
@@ -96,7 +97,6 @@ function Base.println(xs...)
 	global _output_buffer
 	if _output_buffer != nothing
 		println(_output_buffer, xs...)
-		println(_output_buffer, "")
 	end
 	println(STDOUT, xs...)
 end
