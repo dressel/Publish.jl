@@ -34,6 +34,8 @@ The idea is to make plotting more like MATLAB.
 * Make the output look prettier (headers, footers, spacing)
 * Maybe override display? Display is nicer for things like Arrays
 * Make the Plain style ready (maybe call it output?)
+* Remove temp_publish_1.tex files created for plotting
+* save function that takes no name, like save(plot)
 
 
 [![Build Status](https://travis-ci.org/dressel/Publish.jl.svg?branch=master)](https://travis-ci.org/dressel/Publish.jl)

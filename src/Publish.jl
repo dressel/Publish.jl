@@ -3,8 +3,11 @@ module Publish
 export publish, publish_tex, setup, showit
 export plot
 
-import PGFPlots: Plots, Axis, save
-export Plots, save
+import PGFPlots: Plots, Axis, save, TEX, PDF, SVG, Plottable, plot
+export Plots, Axis, save
+
+#import TikzPictures : PDF, TEX, save
+#import TikzPictures : PDF, TEX, SVG, save, LaTeXString, @L_str, @L_mstr
 
 # 
 _output_buffer = nothing
@@ -182,6 +185,41 @@ function plot(x, y; ymode=nothing, xmode=nothing)
 		# Just plot it for our sake
 		save("temp_publish_$(_num_plots).pdf", a)
 	end
+end
+
+# Mostly a copy from the PGFPlots version
+# However, here we also deal with some gobal stuff
+function save(filename::String, o::Plottable)
+	println("hi")
+	global _output_buffer
+	global _num_plots
+	if _output_buffer != nothing
+		_num_plots += 1
+		temp_name = "temp_publish_$(_num_plots).tex"
+		save(TEX(temp_name), plot(o))
+	end
+
+    _, ext = splitext(filename)
+
+    ext = lowercase(ext)
+    if ext == ".pdf"
+        save(PDF(filename), plot(o))
+    elseif ext == ".svg"
+        save(SVG(filename), plot(o))
+    elseif ext == ".tex"
+        save(TEX(filename), plot(o))
+    elseif ext == "." || ext == ""
+        error("You must specify a file extension.")
+    else
+        error("Unsupported file extensions: $ext")
+    end
+end
+function Base.println(xs...)
+	global _output_buffer
+	if _output_buffer != nothing
+		println(_output_buffer, xs...)
+	end
+	println(STDOUT, xs...)
 end
 
 end # module
