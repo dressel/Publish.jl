@@ -6,16 +6,12 @@ export plot
 import PGFPlots: Plots, Axis, save, TEX, PDF, SVG, Plottable, plot
 export Plots, Axis, save
 
-#import TikzPictures : PDF, TEX, save
-#import TikzPictures : PDF, TEX, SVG, save, LaTeXString, @L_str, @L_mstr
-
-# 
 _output_buffer = nothing
 _num_plots = 0
 
 
 # Creates the tex file
-function publish_tex(filename::String)
+function publish_tex(filename::String; runcode::Bool=true)
 	global _output_buffer = IOBuffer()
 
 	# TODO: Here I should check for larger names (test.rar.jl)
@@ -59,7 +55,7 @@ function publish_tex(filename::String)
 	println(tex, "\\begin{document}")
 
 	# Begin the code section
-	println(tex, "\\section{Code}")
+	#println(tex, "\\section{Code}")
 	println(tex, "\\begin{lstlisting}[style=JuliaStyle,numbers=left]")
 	source_file = open(filename, "r")
 	while (currentline = readline(source_file)) != ""
@@ -69,24 +65,26 @@ function publish_tex(filename::String)
 	println(tex, "\\end{lstlisting}")
 
 	# Run the test file and print the output
-	include(filename)
-	output_string = takebuf_string(_output_buffer)
-	if length(output_string) > 0
-		println(tex, "\\section{Output}")
-		println(tex, "\\begin{lstlisting}[style=Plain]")
-		println(tex, output_string)
-		println(tex, "\\end{lstlisting}")
-	end
+	if runcode
+		include(filename)
+		output_string = takebuf_string(_output_buffer)
+		if length(output_string) > 0
+			#println(tex, "\\section{Output}")
+			println(tex, "\\begin{lstlisting}[style=Plain]")
+			println(tex, output_string)
+			println(tex, "\\end{lstlisting}")
+		end
 
-	# We also have a bunch of tex plots
-	global _num_plots
-	for i = 1:_num_plots
-		println(tex, "\\begin{figure}[!ht]")
-		println(tex, "\\centering")
-		println(tex, "\\input{temp_publish_$i.tex}")
-		println(tex, "\\end{figure}")
+		# We also have a bunch of tex plots
+		global _num_plots
+		for i = 1:_num_plots
+			println(tex, "\\begin{figure}[!ht]")
+			println(tex, "\\centering")
+			println(tex, "\\input{temp_publish_$i.tex}")
+			println(tex, "\\end{figure}")
+		end
+		_num_plots = 0
 	end
-	_num_plots = 0
 
 	# End the document and close
 	println(tex, "\\end{document}")
@@ -115,7 +113,7 @@ function Base.print(xs...)
 end
 
 
-function publish(filename::String)
+function publish(filename::String; runcode::Bool=true)
 
 	# TODO: check that the file exists
 	# TODO: check that the file is of the correct type (.jl)
@@ -128,7 +126,7 @@ function publish(filename::String)
 
 	# This also sets the global _output_buffer to a value (as in, not nothing)
 	# When it is done, set the global _output_buffer back to nothing
-	publish_tex(filename)
+	publish_tex(filename; runcode=runcode)
 	global _output_buffer = nothing
 
 	# TODO: Here I should check for larger names (test.rar.jl)
@@ -142,7 +140,6 @@ function publish(filename::String)
 	# From the .tex file, generate a pdf within the specified folder
 	latexCommand = ``
 	# TODO: I'm not sure what enableWrite18 does. I asssume it is some latex feature
-	#  I should talk to Dr. Kochenderfer about it. For now, I leave it out
 	#if tp.enableWrite18
 	#	latexCommand = `lualatex --enable-write18 --output-directory=$(foldername) $(f.filename)`
 	#else
@@ -190,7 +187,6 @@ end
 # Mostly a copy from the PGFPlots version
 # However, here we also deal with some gobal stuff
 function save(filename::String, o::Plottable)
-	println("hi")
 	global _output_buffer
 	global _num_plots
 	if _output_buffer != nothing
