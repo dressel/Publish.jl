@@ -8,11 +8,14 @@ export Plots, Axis, save
 
 _output_buffer = nothing
 _num_plots = 0
+_publish_file = nothing
 
 
 # Creates the tex file
 function publish_tex(filename::String; runcode::Bool=true)
 	global _output_buffer = IOBuffer()
+
+	global _publish_file = filename
 
 	# TODO: Here I should check for larger names (test.rar.jl)
 	filename_arr = split(filename, ".")
@@ -77,13 +80,16 @@ function publish_tex(filename::String; runcode::Bool=true)
 
 		# We also have a bunch of tex plots
 		global _num_plots
+		global _p
 		for i = 1:_num_plots
 			println(tex, "\\begin{figure}[!ht]")
 			println(tex, "\\centering")
-			println(tex, "\\input{temp_publish_$i.tex}")
+			println(tex, "\\input{$(_publish_file)_plot$i.tex}")
+			#println(tex, "\\input{temp_publish_$i.tex}")
 			println(tex, "\\end{figure}")
 		end
 		_num_plots = 0
+		_publish_file = nothing
 	end
 
 	# End the document and close
@@ -174,13 +180,14 @@ function plot(x, y; ymode=nothing, xmode=nothing)
 
 	global _output_buffer
 	global _num_plots
+	global _publish_file
 	if _output_buffer != nothing
 		# This is being run to publish the file
 		_num_plots += 1
-		save("temp_publish_$(_num_plots).tex", a)
+		save("$(_output_buffer)_plot$(_num_plots).tex", a)
 	else
 		# Just plot it for our sake
-		save("temp_publish_$(_num_plots).pdf", a)
+		save("$(_output_buffer)_plot$(_num_plots).pdf", a)
 	end
 end
 
@@ -189,9 +196,10 @@ end
 function save(filename::String, o::Plottable)
 	global _output_buffer
 	global _num_plots
+	global _publish_file
 	if _output_buffer != nothing
 		_num_plots += 1
-		temp_name = "temp_publish_$(_num_plots).tex"
+		temp_name = "$(_publish_file)_plot$(_num_plots).tex"
 		save(TEX(temp_name), plot(o))
 	end
 
