@@ -1,21 +1,26 @@
 module Publish
 
 export publish, publish_tex, setup, showit
-export plot
 
 import PGFPlots: Plots, Axis, save, TEX, PDF, SVG, Plottable, plot
 export Plots, Axis, save
 
+# Global variables
+#  _output_buffer	Contains tex string
+#  _num_plots		Number of plots in this document
+#  _plot_list		List of the plot names
+#  _publish_file	Name of file being pulished
 _output_buffer = nothing
 _num_plots = 0
+_plot_list = nothing
 _publish_file = nothing
 
 
 # Creates the tex file
 function publish_tex(filename::String; runcode::Bool=true)
 	global _output_buffer = IOBuffer()
-
 	global _publish_file = filename
+	global _plot_list = String[]
 
 	# TODO: Here I should check for larger names (test.rar.jl)
 	filename_arr = split(filename, ".")
@@ -80,12 +85,11 @@ function publish_tex(filename::String; runcode::Bool=true)
 
 		# We also have a bunch of tex plots
 		global _num_plots
-		global _p
+		global _plot_list
 		for i = 1:_num_plots
 			println(tex, "\\begin{figure}[!ht]")
 			println(tex, "\\centering")
-			println(tex, "\\input{$(_publish_file)_plot$i.tex}")
-			#println(tex, "\\input{temp_publish_$i.tex}")
+			println(tex, "\\input{$(_plot_list[i])}")
 			println(tex, "\\end{figure}")
 		end
 		_num_plots = 0
@@ -107,6 +111,7 @@ function Base.println(xs...)
 	end
 	println(STDOUT, xs...)
 end
+
 
 # Does the same thing as normal print function, 
 #  but also prints to a buffer if it exists.
@@ -174,38 +179,22 @@ function publish(filename::String; runcode::Bool=true)
 	end
 end
 
-function plot(x, y; ymode=nothing, xmode=nothing)
-	p = Plots.Linear(x,y)
-	a = Axis(p, ymode=ymode, xmode=xmode)
-
-	global _output_buffer
-	global _num_plots
-	global _publish_file
-	if _output_buffer != nothing
-		# This is being run to publish the file
-		_num_plots += 1
-		save("$(_output_buffer)_plot$(_num_plots).tex", a)
-	else
-		# Just plot it for our sake
-		save("$(_output_buffer)_plot$(_num_plots).pdf", a)
-	end
-end
 
 # Mostly a copy from the PGFPlots version
 # However, here we also deal with some gobal stuff
 function save(filename::String, o::Plottable)
+
+	# Make sure you are referring to the global variables
 	global _output_buffer
 	global _num_plots
+	global _plot_list
 	global _publish_file
-	if _output_buffer != nothing
-		_num_plots += 1
-		temp_name = "$(_publish_file)_plot$(_num_plots).tex"
-		save(TEX(temp_name), plot(o))
-	end
 
-    _, ext = splitext(filename)
-
+	# Determine the base and extension
+    base_name, ext = splitext(filename)
     ext = lowercase(ext)
+
+	# Continue to the original save functionality
     if ext == ".pdf"
         save(PDF(filename), plot(o))
     elseif ext == ".svg"
@@ -217,13 +206,15 @@ function save(filename::String, o::Plottable)
     else
         error("Unsupported file extensions: $ext")
     end
-end
-function Base.println(xs...)
-	global _output_buffer
+
+	# Additional functionality for Publish.jl
+	# Save name and tex file so we can plot this later
 	if _output_buffer != nothing
-		println(_output_buffer, xs...)
+		_num_plots += 1
+		temp_name = "$(base_name).tex"
+		push!(_plot_list, temp_name)
+		save(TEX(temp_name), plot(o))
 	end
-	println(STDOUT, xs...)
 end
 
 end # module
