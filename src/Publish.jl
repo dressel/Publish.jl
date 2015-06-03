@@ -126,7 +126,10 @@ end
 
 function publish(filename::String; runcode::Bool=true)
 
-	# TODO: check that the file exists
+	if !isfile(filename)
+		error(filename, " does not exist.")
+	end
+
 	# TODO: check that the file is of the correct type (.jl)
 
 	# Generate the .tex file and make pass along any possible errors
