@@ -29,8 +29,9 @@
 	showstringspaces=false % If true, underlines spaces in strings
 }
 
-\lstdefinestyle{Plain}
+\lstdefinestyle{Output}
 {
 	basicstyle=\itshape,
-	xleftmargin=1.0in
+	xleftmargin=1.0in,
+	literate={``}{\dbllq}1 {''}{\dblrq}1
 }

@@ -17,6 +17,7 @@ _publish_file = nothing
 
 
 # Creates the tex file
+# Called by publish
 function publish_tex(filename::String; runcode::Bool=true)
 	global _output_buffer = IOBuffer()
 	global _publish_file = filename
@@ -28,18 +29,15 @@ function publish_tex(filename::String; runcode::Bool=true)
 		filename_short = filename_arr[1]
 	end
 
-	#filename = f.filename
 	tex = open("$(filename_short).tex", "w")
 	println(tex, "\\documentclass{article}")
 	println(tex, "\\usepackage{caption}")
 
-	# Quote stuff: Cool, doesn't work in the lstlisting stuff though :(
-	# TODO: is this even useful anymore?
-	println(tex, "\\usepackage[english]{babel}")
-	println(tex, "\\usepackage[autostyle, english = american]{csquotes}")
-	println(tex, "\\MakeOuterQuote{\"}")
+	# For quotation marks in lstlisting
+	println(tex, "\\newcommand{\\dbllq}{``}")
+	println(tex, "\\newcommand{\\dblrq}{''}")
 
-	# standalone stuff
+	# Standalone stuff for figures
 	println(tex, "\\usepackage{standalone}")
 	println(tex, "\\usepackage[usenames,dvipsnames]{xcolor}")
 	println(tex, "\\usepackage{pgfplots}")
@@ -51,7 +49,8 @@ function publish_tex(filename::String; runcode::Bool=true)
 	# Headers, footers
 	println(tex, "\\usepackage{fancyhdr}")
 	println(tex, "\\pagestyle{fancy}")
-	println(tex, "\\lhead{$filename}")
+	filename_sanitized = replace(filename, "_", "\\_")
+	println(tex, "\\lhead{$filename_sanitized}")
 	println(tex, "\\rhead{}")
 	println(tex, "\\renewcommand{\\headrulewidth}{0.4pt}")
 	println(tex, "\\renewcommand{\\footrulewidth}{0.4pt}")
@@ -63,7 +62,6 @@ function publish_tex(filename::String; runcode::Bool=true)
 	println(tex, "\\begin{document}")
 
 	# Begin the code section
-	#println(tex, "\\section{Code}")
 	println(tex, "\\begin{lstlisting}[style=JuliaStyle,numbers=left]")
 	source_file = open(filename, "r")
 	while (currentline = readline(source_file)) != ""
@@ -77,8 +75,7 @@ function publish_tex(filename::String; runcode::Bool=true)
 		include(filename)
 		output_string = takebuf_string(_output_buffer)
 		if length(output_string) > 0
-			#println(tex, "\\section{Output}")
-			println(tex, "\\begin{lstlisting}[style=Plain]")
+			println(tex, "\\begin{lstlisting}[style=Output]")
 			println(tex, output_string)
 			println(tex, "\\end{lstlisting}")
 		end
