@@ -90,8 +90,8 @@ function publish_tex(filename::String; runcode::Bool=true)
 			println(tex, "\\end{figure}")
 		end
 		_num_plots = 0
-		_publish_file = nothing
 	end
+	_publish_file = nothing
 
 	# End the document and close
 	println(tex, "\\end{document}")
@@ -126,8 +126,6 @@ function publish(filename::String; runcode::Bool=true)
 	if !isfile(filename)
 		error(filename, " does not exist.")
 	end
-
-	# TODO: check that the file is of the correct type (.jl)
 
 	# Generate the .tex file and make pass along any possible errors
 	IX = rsearch(filename,'/')              # Find the last slash
@@ -193,6 +191,19 @@ function save(filename::String, o::Plottable)
 	# Determine the base and extension
     base_name, ext = splitext(filename)
     ext = lowercase(ext)
+
+	# Additional functionality for Publish.jl
+	# If this name matches the name they gave, do not accept
+	# Check before the dot...
+	# TODO: when we error out, should we set more things to nothing???
+	if _publish_file != nothing
+		file_base = splitext(_publish_file)[1]
+		if file_base == base_name
+			_publish_file = nothing
+			error("Plot name cannot equal filename")
+		end
+	end
+
 
 	# Continue to the original save functionality
     if ext == ".pdf"
