@@ -10,14 +10,17 @@ export Plots, Axis, save
 #  _num_plots		Number of plots in this document
 #  _plot_list		List of the plot names
 #  _publish_file	Name of file being pulished
+#  _folder_name		Name of directory in which file to publish is housed
 _output_buffer = nothing
 _num_plots = 0
 _plot_list = nothing
 _publish_file = nothing
+_folder_name = nothing
 
 
 # Creates the tex file
 # Called by publish
+# filename includes the foldername...
 function publish_tex(filename::String; runcode::Bool=true)
 	global _output_buffer = IOBuffer()
 	global _publish_file = filename
@@ -131,6 +134,7 @@ function publish(filename::String; runcode::Bool=true)
 	IX = rsearch(filename,'/')              # Find the last slash
 	foldername = filename[1:IX-1]           # Everything before that is the folder name
 	foldername = (IX == 0 ? "." : foldername) # If there was no slash, folder is "."
+	global _folder_name = foldername
 	#save(TEX(f.filename * ".tex"), tp)        # Save the tex file in the directory that was given
 
 	# This also sets the global _output_buffer to a value (as in, not nothing)
@@ -144,8 +148,6 @@ function publish(filename::String; runcode::Bool=true)
 		filename_short = filename_arr[1]
 	end
 
-	# We should add more to file
-
 	# From the .tex file, generate a pdf within the specified folder
 	latexCommand = ``
 	# TODO: I'm not sure what enableWrite18 does. I asssume it is some latex feature
@@ -154,8 +156,12 @@ function publish(filename::String; runcode::Bool=true)
 	#else
 	#	latexCommand = `lualatex --output-directory=$(foldername) $(f.filename)`
 	#end
-	latexCommand = `lualatex --output-directory=$(foldername) $(filename_short)`
+	# Change to the folder...
+	home = pwd()
+	cd(foldername)
+	latexCommand = `lualatex $(split(filename_short,"/")[end])`
 	isPdfThere = success(latexCommand)
+	cd(home)
 
 	if !isPdfThere
 		line1 = "ERROR: The pdf generation failed.\n"
@@ -187,6 +193,7 @@ function save(filename::String, o::Plottable)
 	global _num_plots
 	global _plot_list
 	global _publish_file
+	global _folder_name
 
 	# Determine the base and extension
     base_name, ext = splitext(filename)
@@ -195,15 +202,15 @@ function save(filename::String, o::Plottable)
 	# Additional functionality for Publish.jl
 	# If this name matches the name they gave, do not accept
 	# Check before the dot...
-	# TODO: when we error out, should we set more things to nothing???
+	# TODO: Ensure a clean break on error out
 	if _publish_file != nothing
 		file_base = splitext(_publish_file)[1]
+		filename = "$(_folder_name)/$filename"
 		if file_base == base_name
 			_publish_file = nothing
 			error("Plot name cannot equal filename")
 		end
 	end
-
 
 	# Continue to the original save functionality
     if ext == ".pdf"
@@ -224,7 +231,7 @@ function save(filename::String, o::Plottable)
 		_num_plots += 1
 		temp_name = "$(base_name).tex"
 		push!(_plot_list, temp_name)
-		save(TEX(temp_name), plot(o))
+		save(TEX("$(_folder_name)/$temp_name"), plot(o))
 	end
 end
 
