@@ -4,6 +4,12 @@ This package uses Latex to generate a PDF containing some file's code and output
 The result looks similar to that produced by MATLAB's `publish` function.
 This is particularly useful if you have to submit code with problem sets.
 
+## Installation
+To install, enter Julia and run the following:
+```
+Pkg.clone("https://github.com/dressel/Publish.jl.git")
+```
+
 ## Basic Usage
 ```
 using Publish
@@ -22,7 +28,6 @@ publish("code.jl", runcode=false)
 Plotting is currently handled with the Julia PGFPlots package.
 Any time you use the `save` function with PGFPlots, that plot is saved to the PDF.
 
-
 ## Required Tex Packages
 * `listings` to plot the code
 * `caption` forgot why we need this
@@ -30,6 +35,17 @@ Any time you use the `save` function with PGFPlots, that plot is saved to the PD
 * `xcolor` for pgfplots, listings stuff
 * `pgfplots` for plotting
 * `geometry` to change margins
+
+## Example File
+An example file named sample\_file.jl and its corresponding pdf can be found in the examples folder.
+To try generating this on your own, run the code below.
+It will copy the sample file to your current directory (with the name publish\_package\_sample.jl to avoid any potential conflicts).
+You should then be able to publish the code.
+```
+require(Publish/examples/copy_sample.jl")
+using Publish
+publish("publish_package_sample.jl")
+```
 
 ## Notes
 If you publish a file in another folder, as in:
@@ -46,7 +62,7 @@ Any time your code saves a plot (using PGFPlots), a .tex file will be saved for 
 * Make some test julia files and stick them in the test folder
 * Allow publishing of other languages (obviously, can't run that code)
 * Include another publishing format that doesn't rely on Latex (md, html)
-* improve listings language file (in julia_listings.tex)
+* improve listings language file (in julia\_listings.tex)
 * Robust to not having things like pgfplots. Just don't plot in that case
 * Override display, so printing arrays can look pretty
 * Make the Output style look better
